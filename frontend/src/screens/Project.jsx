@@ -42,6 +42,9 @@ const Project = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [pendingMessage, setPendingMessage] = useState("");
 
+  const [activeMobileTab, setActiveMobileTab] = useState('editor'); // 'editor', 'chat', 'output'
+  const [isExplorerOpen, setIsExplorerOpen] = useState(false);
+
   const [fileTree, setFileTree] = useState({});
   const [currentFile, setCurrentFile] = useState(null);
   const [openFiles, setOpenFiles] = useState([]);
@@ -456,6 +459,9 @@ const Project = () => {
     <main className="h-screen w-screen overflow-hidden bg-[#09090b] text-[#e5e1e4]">
       <header className="flex h-12 items-center justify-between border-b border-zinc-800 bg-[#09090b] px-4">
         <div className="flex items-center gap-6">
+          <button onClick={() => setIsExplorerOpen(!isExplorerOpen)} className="flex h-8 w-8 items-center justify-center rounded-md border border-zinc-800 bg-zinc-900 text-zinc-400 md:hidden">
+            <i className={isExplorerOpen ? "ri-close-line" : "ri-menu-line"}></i>
+          </button>
           <button onClick={() => navigate('/home')} className="flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-md bg-violet-600 text-white">
               <i className="ri-terminal-box-fill"></i>
@@ -507,8 +513,14 @@ const Project = () => {
       </header>
 
       <div className="flex h-[calc(100vh-3rem)] overflow-hidden">
-        <aside className="hidden w-16 flex-col border-r border-zinc-800 bg-[#09090b] md:flex lg:w-56">
+        <aside className={`${isExplorerOpen ? 'fixed inset-0 z-[60] flex' : 'hidden'} md:relative md:z-0 md:flex w-16 flex-col border-r border-zinc-800 bg-[#09090b] lg:w-56`}>
           <div className="flex-1 py-4">
+            <div className="flex items-center justify-between px-4 md:hidden">
+              <span className="font-display text-[10px] uppercase tracking-[0.18em] text-zinc-500">Workspace</span>
+              <button onClick={() => setIsExplorerOpen(false)} className="text-zinc-500 hover:text-white">
+                <i className="ri-close-line text-lg"></i>
+              </button>
+            </div>
             <div className="mb-4 hidden px-4 lg:block">
               <h3 className="font-display text-[10px] uppercase tracking-[0.18em] text-zinc-500">Workspace</h3>
             </div>
@@ -545,9 +557,11 @@ const Project = () => {
           </div>
         </aside>
 
+        {isExplorerOpen && <div className="fixed inset-0 z-[55] bg-black/60 backdrop-blur-sm md:hidden" onClick={() => setIsExplorerOpen(false)} />}
+
         <section className="flex min-w-0 flex-1 flex-col bg-[#131315]">
           <div className="flex min-h-0 flex-1 overflow-hidden">
-            <aside className="hidden w-64 flex-col border-r border-zinc-800 bg-[#0e0e10] sm:flex">
+            <aside className={`${isExplorerOpen ? 'fixed inset-y-0 left-16 z-[60] flex animate-in slide-in-from-left duration-300' : 'hidden'} md:relative md:left-0 md:z-0 md:flex w-64 flex-col border-r border-zinc-800 bg-[#0e0e10]`}>
               <div className="flex h-9 items-center justify-between border-b border-zinc-800 bg-zinc-900/30 px-4">
                 <span className="font-display text-[10px] uppercase tracking-[0.18em] text-zinc-500">Project Files</span>
                 <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-400">{fileNames.length}</span>
@@ -560,6 +574,7 @@ const Project = () => {
                         onClick={() => {
                           setCurrentFile(filename);
                           if (!openFiles.includes(filename)) setOpenFiles([...openFiles, filename]);
+                          setIsExplorerOpen(false);
                         }}
                         className={`min-w-0 flex-1 border-l-2 px-4 py-1.5 text-left transition ${
                           currentFile === filename
@@ -596,7 +611,7 @@ const Project = () => {
               </div>
             </aside>
 
-            <div className="flex min-w-0 flex-1 flex-col border-r border-zinc-800">
+            <div className={`${activeMobileTab === 'editor' ? 'flex' : 'hidden'} md:flex min-w-0 flex-1 flex-col border-r border-zinc-800`}>
               <div className="scrollbar-hide flex h-9 items-center overflow-x-auto border-b border-zinc-800 bg-zinc-900/30">
                 {currentFile ? (
                   <div className="flex h-full items-center gap-2 border-r border-zinc-800 border-t-2 border-t-violet-500 bg-[#1c1b1d] px-4 text-xs text-zinc-100">
@@ -622,7 +637,7 @@ const Project = () => {
               </div>
             </div>
 
-            <aside className="hidden w-80 flex-col bg-[#0e0e10] xl:flex">
+            <aside className={`${activeMobileTab === 'chat' ? 'flex' : 'hidden'} xl:flex w-full xl:w-80 flex-col bg-[#0e0e10]`}>
               <div className="flex h-9 items-center justify-between border-b border-zinc-800 bg-zinc-900/30 px-4">
                 <div className="flex items-center gap-2">
                   <i className="ri-sparkling-2-line text-violet-300"></i>
@@ -696,8 +711,8 @@ const Project = () => {
             </aside>
           </div>
 
-          <div className="flex h-64 border-t border-zinc-800 bg-zinc-900/50">
-            <div className="flex min-w-0 flex-1 flex-col border-r border-zinc-800">
+          <div className={`${activeMobileTab === 'output' ? 'flex' : 'hidden'} md:flex h-full md:h-64 flex-col md:flex-row border-t border-zinc-800 bg-zinc-900/50`}>
+            <div className="flex min-w-0 flex-1 flex-col border-b md:border-b-0 md:border-r border-zinc-800">
               <div className="flex h-8 items-center gap-4 border-b border-zinc-800 bg-zinc-900/80 px-4">
                 <span className="font-display flex h-full items-center border-b border-zinc-100 text-[10px] uppercase tracking-[0.16em] text-zinc-100">Terminal</span>
                 <span className="font-display text-[10px] uppercase tracking-[0.16em] text-zinc-500">Output</span>
@@ -718,7 +733,7 @@ const Project = () => {
               </div>
             </div>
 
-            <div className="hidden w-[420px] flex-col bg-zinc-950 md:flex">
+            <div className="flex flex-1 flex-col bg-zinc-950 md:w-[420px] md:flex-none">
               <div className="flex h-8 items-center justify-between border-b border-zinc-800 bg-zinc-900/80 px-4">
                 <div className="flex items-center gap-2">
                   <i className="ri-global-line text-zinc-500"></i>
@@ -730,7 +745,7 @@ const Project = () => {
                   </button>
                 )}
               </div>
-              <div className="m-2 flex flex-1 overflow-hidden rounded bg-white">
+              <div className="m-2 flex flex-1 overflow-hidden rounded bg-white min-h-[300px] md:min-h-0">
                 {iframeUrl ? (
                   <iframe src={iframeUrl} className="h-full w-full" title="Web Container Preview" />
                 ) : (
@@ -760,7 +775,26 @@ const Project = () => {
         </section>
       </div>
 
-      <div className="fixed bottom-8 right-4 z-40 xl:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-14 border-t border-zinc-800 bg-black/80 backdrop-blur-md md:hidden">
+        {[
+          { id: 'editor', icon: 'ri-code-s-slash-line', label: 'Code' },
+          { id: 'chat', icon: 'ri-sparkling-2-line', label: 'AI Chat' },
+          { id: 'output', icon: 'ri-terminal-window-line', label: 'Output' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveMobileTab(tab.id)}
+            className={`flex flex-1 flex-col items-center justify-center gap-1 transition ${
+              activeMobileTab === tab.id ? 'text-violet-400' : 'text-zinc-500'
+            }`}
+          >
+            <i className={`${tab.icon} text-lg`}></i>
+            <span className="text-[10px] font-bold uppercase tracking-wider">{tab.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      <div className="fixed bottom-20 right-4 z-40 hidden md:block xl:hidden">
         <div className="w-[min(360px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-zinc-800 bg-[#0e0e10] shadow-2xl shadow-black/50">
           <div className="flex h-9 items-center justify-between border-b border-zinc-800 bg-zinc-900/60 px-4">
             <span className="font-display text-[10px] uppercase tracking-[0.18em] text-zinc-400">AI Assistant</span>
