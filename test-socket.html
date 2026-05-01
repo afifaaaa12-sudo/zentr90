@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Socket Test</title>
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <style>
+    body { font-family: Arial; padding: 30px; background: #f5f5f5; }
+    button { padding: 12px 20px; font-size: 16px; cursor: pointer; border-radius: 5px; border: none; }
+    .connect { background: #4CAF50; color: white; }
+    .send { background: #2196F3; color: white; }
+    #status { margin-top: 20px; padding: 15px; background: white; border-radius: 5px; min-height: 50px; }
+    .success { color: green; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <h2>Socket.IO Test</h2>
+  <button class="connect" onclick="connect()">1. Connect to Server</button>
+  <button class="send" onclick="sendEvent()" style="margin-left: 10px;">2. Send Event</button>
+  <div id="status"><b>Status:</b> Not connected</div>
+
+  <script>
+    let socket;
+
+    function connect() {
+      document.getElementById('status').innerHTML = '<b>Status:</b> Connecting...';
+      
+      socket = io('http://localhost:3000');
+      
+      socket.on('connect', () => {
+        document.getElementById('status').innerHTML = 
+          '<b class="success">Status:</b> Connected! ✅<br><b>Socket ID:</b> ' + socket.id;
+        console.log('Connected:', socket.id);
+      });
+
+      socket.on('connect_error', (err) => {
+        document.getElementById('status').innerHTML = 
+          '<b class="error">Error:</b> ' + err.message;
+        console.log('Connection error:', err);
+      });
+
+      socket.on('disconnect', () => {
+        document.getElementById('status').innerHTML = '<b class="error">Status:</b> Disconnected ❌';
+        console.log('Disconnected');
+      });
+    }
+
+    function sendEvent() {
+      if (socket && socket.connected) {
+        socket.emit('event', { message: 'Hello from client!', time: new Date() });
+        alert('Event sent! Check server terminal.');
+      } else {
+        alert('Not connected! Click "Connect to Server" first.');
+      }
+    }
+  </script>
+</body>
+</html>
